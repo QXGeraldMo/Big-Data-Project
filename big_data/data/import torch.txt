@@ -1,0 +1,61 @@
+import torch
+from transformers import AutoTokenizer
+from transformers import set_seed, AutoModelForTokenClassification
+
+tokenizer = AutoTokenizer.from_pretrained('roberta-base')
+model = AutoModelForTokenClassification.from_pretrained('roberta-base', id2label={0:'1',1:'2',2:'3',3:'4',4:'5'})
+
+learning_rate = 1e-4
+batch_size = 16
+epochs = 1 
+weight_decay = 0.0
+
+from transformers import TrainingArguments, Trainer
+
+training_args = TrainingArguments(
+    output_dir="my_awesome_model", # HuggingFace wants a name for your model
+    evaluation_strategy="epoch", # How often we want to evaluate the model
+    learning_rate=learning_rate, # Hyperparameter
+    per_device_train_batch_size=batch_size, # Hyperparameter
+    per_device_eval_batch_size=batch_size, # Hyperparameter
+    num_train_epochs=epochs, # Hyperparameter
+    weight_decay=weight_decay, # Hyperparameter
+)
+
+
+labels_train_list = [[label] for label in labels_train.tolist()]
+labels_val_list = [[label] for label in labels_val.tolist()]
+
+train_dataset = datasets.Dataset.from_dict({
+    'input_ids': tokenizer(texts_train.tolist())['input_ids'],
+    'labels': labels_train_list,
+})
+
+
+validation_dataset = datasets.Dataset.from_dict({
+    'input_ids': tokenizer(texts_val.tolist())['input_ids'],
+    'labels': labels_val_list,
+})
+
+from transformers import DataCollatorForTokenClassification
+
+data_collator = DataCollatorForTokenClassification(tokenizer=tokenizer)
+
+trainer = Trainer(
+    model=model, # The model you want to train
+    args=training_args, # The various training arguments set up above
+    train_dataset=train_dataset, # The data to use to update the weights
+    eval_dataset=validation_dataset, # The data to use 
+    tokenizer=tokenizer, # The tokenizer used on the data
+    data_collator=data_collator, # A data collator that does clever things moving data around
+)
+
+trainer.train()
+
+
+
+3026     return torch._C._nn.cross_entropy_loss(input, target, weight, _Reduction.get_enum(reduction), ignore_index, label_smoothing)
+   3027 
+   3028 
+
+IndexError: Target 2 is out of bounds.
